@@ -14,25 +14,45 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Show repository structure
+      - name: Show project structure
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Repository files:"
+          ls -la
+          echo "Backend folder contents:"
+          ls -la Backend
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # Build Docker image
       - name: Build Docker image
         working-directory: Backend
         run: |
+          echo "Current working directory:"
+          pwd
+          echo "Files inside Backend:"
+          ls -la
+
           IMAGE="${{ secrets.DOCKER_USERNAME }}/task-api:latest"
           echo "Building image: $IMAGE"
+
           docker build -t $IMAGE .
 
+      # Push Docker image
       - name: Push Docker image
         run: |
           IMAGE="${{ secrets.DOCKER_USERNAME }}/task-api:latest"
           echo "Pushing image: $IMAGE"
+
           docker push $IMAGE
 
+      # Deploy to EC2
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -52,4 +72,5 @@ jobs:
             echo "Running new container..."
             docker run -d -p 5000:5000 --name task-api --restart always $IMAGE
 
+            echo "Cleaning old Docker images..."
             docker system prune -f
