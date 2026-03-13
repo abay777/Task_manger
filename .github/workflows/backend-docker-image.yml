@@ -57,10 +57,8 @@ jobs:
               -p 5000:5000 \
               --name task-api \
               --restart always \
-              -e DB_HOST=${{ secrets.DB_HOST }} \
-              -e DB_USER=${{ secrets.DB_USER }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -e DB_NAME=${{ secrets.DB_NAME }} \
+              -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+              -e PORT=5000 \
               $IMAGE
 
             docker system prune -f
