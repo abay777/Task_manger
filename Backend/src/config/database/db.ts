@@ -21,7 +21,7 @@ export const testDbConnection = async () => {
   try {
     await db.raw("SELECT 1")
 
-    console.log("✅ PostgreSQL connected successfully")
+    console.log("✅ PostgreSQL connected successfully ")
 
   } catch (error) {
     console.error("❌ PostgreSQL connection failed:", error)
