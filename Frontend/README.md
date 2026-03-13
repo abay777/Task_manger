@@ -7,8 +7,9 @@ A simple, responsive React frontend for the Task Manager application, built with
 To get the frontend running locally, follow these 3 steps:
 
 **1. Install Dependencies**
-Open your terminal in the `Frontend` directory and run:
+Open your terminal in the root directory (where you cloned the repo) and run:
 ```bash
+cd Frontend
 npm install
 ```
 
