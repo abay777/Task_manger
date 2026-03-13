@@ -3,29 +3,32 @@ import { db } from "../config/database/db"
 export const findUserById = async (userId: number) => {
 
   const user = await db("Users")
-    .where("id", userId)
+    .where({ id: userId })
     .first()
 
-  return user
+  return user || null
 }
 
 export const findUserByEmail = async (email: string) => {
 
   const user = await db("Users")
-    .where("email", email)
+    .where({ email })
     .first()
 
-  return user
+  return user || null
 }
 
-export const createUser = async (email: string) => {
+export const createUser = async (
+  email: string,
+  fullName?: string
+) => {
 
-  const [id] = await db("Users").insert({
-    email
-  })
+  const [user] = await db("Users")
+    .insert({
+      email,
+      full_name: fullName
+    })
+    .returning("*")
 
-  return {
-    id,
-    email
-  }
+  return user
 }

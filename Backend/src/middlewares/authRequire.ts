@@ -1,16 +1,32 @@
 import { Request, Response, NextFunction } from "express"
+import { findUserById } from "../models/usersModel"
 
-export const authRequire = (
+export const authRequire = async (
   req: any,
   res: Response,
   next: NextFunction
 ) => {
 
-  req.user = {
-    id: 1,
-    email: "demo@test.com",
-    full_name:'demo'
-  }
+  try {
 
-  next()
+    const user = await findUserById(1)
+    
+
+    if (!user) {
+      return res.status(401).json({
+        message: "User not found"
+      })
+    }
+
+    req.user = user
+
+    next()
+
+  } catch (error) {
+
+    return res.status(500).json({
+      message: "Authentication failed"
+    })
+
+  }
 }
