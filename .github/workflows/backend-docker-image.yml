@@ -11,91 +11,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # -----------------------------
       # Checkout code
-      # -----------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # -----------------------------
-      # Debug repository structure
-      # -----------------------------
-      - name: Debug repository structure
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "Root files:"
-          ls -la
-          echo "Backend folder:"
-          ls -la Backend || true
-
-      # -----------------------------
-      # Verify Dockerfile exists
-      # -----------------------------
-      - name: Check Dockerfile
-        run: |
-          echo "Checking Dockerfile..."
-          ls -la Backend/Dockerfile
-
-      # -----------------------------
-      # Show Docker environment
-      # -----------------------------
-      - name: Check Docker installation
-        run: |
-          docker --version
-          docker info
-
-      # -----------------------------
-      # Debug secrets
-      # -----------------------------
-      - name: Debug secrets
-        run: |
-          echo "Docker username: ${{ secrets.DOCKER_USERNAME }}"
-          echo "EC2 host: ${{ secrets.EC2_HOST }}"
-          echo "EC2 key present: ${{ secrets.EC2_SSH_KEY != '' }}"
-
-      # -----------------------------
       # Login to DockerHub
-      # -----------------------------
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # -----------------------------
       # Build Docker image
-      # -----------------------------
       - name: Build Docker image
         working-directory: Backend
         run: |
-          echo "Current working directory:"
-          pwd
-          echo "Files inside Backend:"
-          ls -la
-
           USER=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr -d '\n' | tr -d ' ')
           IMAGE="$USER/task-api:latest"
+          docker build -t $IMAGE .
 
-          echo "Building image: $IMAGE"
-
-          docker build --progress=plain -t $IMAGE .
-
-      # -----------------------------
-      # Push image to DockerHub
-      # -----------------------------
+      # Push Docker image
       - name: Push Docker image
         run: |
           USER=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr -d '\n' | tr -d ' ')
           IMAGE="$USER/task-api:latest"
-
-          echo "Pushing image: $IMAGE"
-
           docker push $IMAGE
 
-      # -----------------------------
       # Deploy to EC2
-      # -----------------------------
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -106,23 +48,15 @@ jobs:
             USER=$(echo "${{ secrets.DOCKER_USERNAME }}" | tr -d '\n' | tr -d ' ')
             IMAGE="$USER/task-api:latest"
 
-            echo "Docker version on EC2:"
-            docker --version
-
-            echo "Pulling latest image..."
             docker pull $IMAGE
 
-            echo "Stopping old container..."
             docker stop task-api || true
             docker rm task-api || true
 
-            echo "Running new container..."
-            docker run -d -p 5000:5000 --name task-api --restart always $IMAGE
+            docker run -d \
+              -p 5000:5000 \
+              --name task-api \
+              --restart always \
+              $IMAGE
 
-            echo "Running containers:"
-            docker ps
-
-            echo "Cleaning unused images..."
             docker system prune -f
-
-            echo "Deployment completed."
