@@ -9,6 +9,7 @@ export const updateTaskStatusDto = z.object({
   status: z.enum(["OPEN", "IN_PROGRESS", "DONE"])
 })
 
+
 export const getTasksQueryDto = z.object({
   status: z.enum(["OPEN", "IN_PROGRESS", "DONE"]).optional(),
   q: z.string().optional(),
