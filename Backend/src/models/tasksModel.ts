@@ -8,19 +8,15 @@ export const findTasks = async (
   offset = 0
 ) => {
 
-  const query = db("Tasks")
+  const tasks = await db("Tasks")
     .where("user_id", userId)
+    .modify((query) => {
+      if (status) query.where("status", status)
+      if (q) query.whereILike("title", `%${q}%`)
+    })
     .orderBy("created_at", "desc")
-
-  if (status) {
-    query.where("status", status)
-  }
-
-  if (q) {
-    query.where("title", "like", `%${q}%`)
-  }
-
-  const tasks = await query.limit(limit).offset(offset)
+    .limit(limit)
+    .offset(offset)
 
   return tasks
 }
@@ -31,18 +27,14 @@ export const countTasks = async (
   q?: string
 ) => {
 
-  const query = db("Tasks")
+  const result = await db("Tasks")
     .where("user_id", userId)
-
-  if (status) {
-    query.where("status", status)
-  }
-
-  if (q) {
-    query.where("title", "like", `%${q}%`)
-  }
-
-  const result = await query.count({ total: "*" }).first()
+    .modify((query) => {
+      if (status) query.where("status", status)
+      if (q) query.whereILike("title", `%${q}%`)
+    })
+    .count({ total: "*" })
+    .first()
 
   return Number(result?.total || 0)
 }
@@ -53,45 +45,32 @@ export const insertTask = async (
   description?: string
 ) => {
 
-  const [id] = await db("Tasks").insert({
-    user_id: userId,
-    title,
-    description,
-    status: "OPEN",
-    created_at: db.fn.now()
-  })
+  const [task] = await db("Tasks")
+    .insert({
+      user_id: userId,
+      title,
+      description,
+      status: "OPEN",
+      created_at: db.fn.now()
+    })
+    .returning("*")
 
-  return {
-    id,
-    user_id: userId,
-    title,
-    description,
-    status: "OPEN"
-  }
+  return task
 }
+
 export const updateTaskStatus = async (
   userId: number,
   taskId: number,
   status: string
 ) => {
 
-  const updated = await db("Tasks")
+  const [task] = await db("Tasks")
     .where({
       id: taskId,
       user_id: userId
     })
-    .update({
-      status
-    })
+    .update({ status })
+    .returning("*")
 
-  if (!updated) return null
-
-  const task = await db("Tasks")
-    .where({
-      id: taskId,
-      user_id: userId
-    })
-    .first()
-
-  return task
+  return task || null
 }
