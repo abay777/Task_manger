@@ -21,9 +21,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: |
-          cd Backend
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/task-api:latest .
+        working-directory: Backend
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/task-api:latest .
 
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/task-api:latest
