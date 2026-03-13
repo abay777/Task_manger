@@ -10,6 +10,7 @@ export const authRequire = async (
   try {
 
     const user = await findUserById(1)
+    
 
     if (!user) {
       return res.status(401).json({
