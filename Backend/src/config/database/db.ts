@@ -10,7 +10,7 @@ export const testDbConnection = async () => {
   try {
     await db.raw("SELECT 1")
 
-    console.log("✅ MySQL connected successfully  /jk /")
+    console.log("✅ MySQL connected successfully  / /")
 
   } catch (error) {
     console.error("❌ MySQL connection failed:", error)
