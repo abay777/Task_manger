@@ -8,7 +8,6 @@ on:
 
 jobs:
   build-and-deploy:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -22,7 +21,9 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/task-api:latest ./Backend
+        run: |
+          cd Backend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/task-api:latest .
 
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/task-api:latest
