@@ -1,96 +1,76 @@
 # Task Manager - Backend
 
-A Node.js and Express backend for the Task Manager application, built with a clean separation of layers (Routes → Controllers → Services → Models) and powered by a SQL database.
+A clean, simplistic, and scalable Node.js backend for the Task Manager application.
 
-## Architecture & Project Structure
+## Table of Contents
+- [How to Run Locally](#how-to-run-locally)
+- [Features](#features)
+- [Environment Variables](#environment-variables)
+- [API Endpoints](#api-endpoints)
 
-The project follows a layered architecture to keep code modular and centralized:
+---
 
-- **`routes/`**: Defines the Express API endpoints and maps them to controllers.
-- **`controllers/`**: Handles incoming HTTP requests and responses, passing data to services.
-- **`services/`**: Contains the core business logic.
-- **`models/`**: Centralized database queries and connection logic.
-- **`middlewares/`**: Custom Express middlewares (e.g., authentication, global error handling).
+## How to Run Locally
 
-## Prerequisites
+Follow these steps to get the backend up and running on your local machine.
 
-- Node.js (v18+ recommended)
-- A local SQL Database (PostgreSQL or MySQL)
+### 1. Prerequisites
+- **Node.js**: Make sure you have Node.js (v18+ recommended) installed.
+- **PostgreSQL**: A local or remote PostgreSQL database instance.
 
-## Database Setup
-
-This project uses MySQL. Follow these steps to set things up:
-
-1. Log into your local MySQL server.
-   ```bash
-   mysql -u root -p
-   ```
-2. Create the database:
-   ```sql
-   CREATE DATABASE task_manager;
-   ```
-3. Update your `.env` file with your MySQL connection details.
-4. Run the migration command to automatically create the `Users` and `Tasks` tables and insert a default user:
-
+### 2. Clone and Install dependencies
+Clone the repository, navigate to the `Backend` directory, and install the required NPM packages:
 ```bash
-mysql -u root -p task_manager < migrations/001_init.sql
+git clone <your-repo-url>
+cd Backend
+npm install
 ```
 
-## Setup Instructions
+### 3. Environment Setup
+Create a `.env` file in the root of the `Backend` folder. You will need to provide your PostgreSQL connection string here. (See [Environment Variables](#environment-variables) for a detailed explanation).
 
-1. **Install Dependencies**
-   Navigate to the `Backend` directory and install the required NPM packages:
-   ```bash
-   npm install
-   ```
+### 4. Start the Server
+Start the development server:
+```bash
+npm run dev
+```
+The API will be accessible at `http://localhost:4000`.
 
-2. **Environment Variables**
-   Create a `.env` file in the root of the `Backend` directory based on the `.env.example`:
-   ```env
-   PORT=5000
-   NODE_ENV=development
-   DB_HOST=localhost
-   DB_USER=your_db_user
-   DB_PASSWORD=your_db_password
-   DB_NAME=task_manager
-   DB_PORT=3306
-   ```
+---
 
-3. **Start the Development Server**
-   Start the server using `npm run dev` (which should run `nodemon` or standard node depending on setup).
-   ```bash
-   npm run dev
-   ```
-   The API will be available at `http://localhost:5000`.
+## Features
 
-## Production Deployment (Docker)
+- **Scalable Architecture**: Built with a clean separation of concerns (Routes → Controllers → Services → Models) to handle growth smoothly and effectively.
+- **Proper Validation (Zod)**: Utilizes Zod for robust schema validation, ensuring data integrity and reliable API requests.
+- **TypeScript for Type Safety**: Developed with TypeScript to enforce end-to-end type safety, reducing runtime errors and improving the developer experience.
+- **Docker Containerization**: Containerized using Docker for consistent local development and production deployments.
+- **CI/CD Pipeline**: Automated workflows using GitHub Actions for testing and seamless deployment to an AWS EC2 instance.
+- **Simplistic Design**: Focused on being developer-friendly, maintainable, and avoiding unnecessary complexity.
 
-To run the application in a production-ready environment using Docker:
+---
 
-1. Build the Docker image:
-   ```bash
-   docker build -t task_manager_backend .
-   ```
+## Environment Variables
 
-2. Run the container (make sure to replace the environment variables to match your DB or use a `.env` file):
-   ```bash
-   docker run -p 5000:5000 \
-     -e DB_HOST=your_db_host \
-     -e DB_USER=your_db_user \
-     -e DB_PASSWORD=your_db_password \
-     -e DB_NAME=task_manager \
-     -d task_manager_backend
-   ```
+To properly connect the application to your PostgreSQL database, your `.env` file must include the following variables:
 
-   Alternatively, if you use a `.env` file for production variables:
-   ```bash
-   docker run -p 5000:5000 --env-file .env -d task_manager_backend
-   ```
+```env
+# Server Configuration
+PORT=4000
+
+# PostgreSQL Connection String
+DATABASE_URL="postgresql://user:password@localhost:5432/task_manager?schema=public"
+```
+
+**Explanation**: 
+- `PORT`: The port on which your backend server will run. (preffered 4000)
+- `DATABASE_URL`: Your PostgreSQL connection string. (e.g., `postgresql://admin:supersecret@localhost:5432/task_db`)
+
+---
 
 ## API Endpoints
 
-All endpoints are prefixed with `/api`. A fake authentication middleware attaches `req.user = { id: 1 }` to every request.
+All endpoints are prefixed with `/api`. 
 
-- `GET /api/tasks?status=&q=&limit=10&offset=0` - Get all tasks for the logged-in user with filtering and pagination.
-- `POST /api/tasks` - Create a new task (defaults to `status="OPEN"`).
-- `PATCH /api/tasks/:id/status` - Update an existing task's status.
+- `GET /api/tasks` - Gather all tasks (supports query parameters like `status`, `q`, `limit`, `offset`).
+- `POST /api/tasks` - Create a new task.
+- `PATCH /api/tasks/:id/status` - Update the status of an existing task.
