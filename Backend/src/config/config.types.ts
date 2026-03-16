@@ -1,4 +1,4 @@
 export interface dbConfig {
-    db_url:string;
+    DB_URL: string;
     connectionLimit?:number
 }

@@ -1,12 +1,13 @@
 import knex from "knex"
 import dotenv from "dotenv"
+import { databaseConfig } from "../configuration"
 
 dotenv.config()
 
 export const db = knex({
   client: "pg",
   connection: {
-    connectionString: process.env.DATABASE_URL,
+    connectionString:databaseConfig.DB_URL ,
     ssl: {
       rejectUnauthorized: false
     }
