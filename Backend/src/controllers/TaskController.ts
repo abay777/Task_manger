@@ -1,8 +1,9 @@
-import { Request, Response } from "express";
-import * as tasksService from '../services/tasksService'
+import { Response } from "express";
+import * as tasksService from "../services/tasksService";
+import { AuthRequest } from "../config/config.types";
+import { getAuthenticatedUserId } from "../utils/helperFunctions";
 
-
- /** 
+/** 
  * Retrieves all tasks belonging to the authenticated user.
  *
  * Supports optional query parameters:
@@ -13,15 +14,18 @@ import * as tasksService from '../services/tasksService'
  *
  * Returns a paginated list of tasks with metadata.
  */
-export const getTasks = async (req: any, res: Response) => {
-  const userId = req.user.id;
+export const getTasks = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  const userId = getAuthenticatedUserId(req);
 
   const result = await tasksService.getTasks(userId, req.query);
 
   res.json({
     success: true,
     meta: result.meta,
-    data: result.tasks
+    data: result.tasks,
   });
 };
 
@@ -38,19 +42,22 @@ export const getTasks = async (req: any, res: Response) => {
  *
  * Returns the created task.
  */
-export const createTask = async (req: any, res: Response) => {
-  const userId = req.user.id;
+export const createTask = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  const userId = getAuthenticatedUserId(req);
 
   const { title, description } = req.body;
 
   const task = await tasksService.createTask(userId, {
     title,
-    description
+    description,
   });
 
   res.status(201).json({
     success: true,
-    data: task
+    data: task,
   });
 };
 
@@ -63,8 +70,11 @@ export const createTask = async (req: any, res: Response) => {
  * Only tasks owned by the current user can be updated.
  * Returns the updated task.
  */
-export const updateTaskStatus = async (req: any, res: Response) => {
-  const userId = req.user.id;
+export const updateTaskStatus = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  const userId = getAuthenticatedUserId(req);
   const taskId = Number(req.params.id);
 
   const { status } = req.body;
@@ -77,6 +87,6 @@ export const updateTaskStatus = async (req: any, res: Response) => {
 
   res.json({
     success: true,
-    data: task
+    data: task,
   });
 };
